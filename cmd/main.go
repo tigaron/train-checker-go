@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	"github.com/gocolly/colly"
 )
@@ -35,6 +36,10 @@ func main() {
 	collector := colly.NewCollector(
 		colly.AllowedDomains("booking.kai.id"),
 	)
+
+	collector.OnRequest(func(request *colly.Request) {
+		fmt.Println("Visiting", request.URL.String())
+	})
 
 	collector.OnHTML("div.data-wrapper", func(element *colly.HTMLElement) {
 		trainName := element.ChildText("div.name")
@@ -77,16 +82,23 @@ func main() {
 		allTrains = append(allTrains, train)
 	})
 
-	collector.OnRequest(func(request *colly.Request) {
-		fmt.Println("Visiting", request.URL.String())
+	collector.OnScraped(func(r *colly.Response) {
+		data, err := json.MarshalIndent(allTrains, "", "  ")
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println("Finished. Here is your data:", string(data))
+		}
 	})
 
-	collector.Visit("https://booking.kai.id/?origination=PSE&destination=YK&tanggal=20-September-2022&adult=1&infant=0&submit=Cari+&+Pesan+Tiket")
-
-	jsonData, err := json.MarshalIndent(allTrains, "", "  ")
-	if err != nil {
-		panic(err)
+	queryParams := url.Values{
+		"origination": {"PSE"},
+		"destination": {"YK"},
+		"tanggal":     {"20-September-2022"},
+		"adult":       {"1"},
+		"infant":      {"0"},
+		"submit":      {"Cari+&+Pesan+Tiket"},
 	}
 
-	fmt.Println(string(jsonData))
+	collector.Visit("https://booking.kai.id/?" + queryParams.Encode())
 }
