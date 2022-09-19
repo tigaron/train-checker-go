@@ -130,16 +130,16 @@ func scraper(url string) []Train {
 	return allTrains
 }
 
-func apiResponse(statusCode int, body interface{}) events.APIGatewayProxyResponse {
+func apiResponse(statusCode int, body interface{}) (events.APIGatewayProxyResponse, error) {
 	res := events.APIGatewayProxyResponse{Headers: map[string]string{"Content-Type": "application/json"}}
 	res.StatusCode = statusCode
 	jsonBody, _ := json.MarshalIndent(body, "", "  ")
 	res.Body = string(jsonBody)
 
-	return res
+	return res, nil
 }
 
-func lambdaHandler(req events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+func lambdaHandler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	from := req.QueryStringParameters["from"]
 	to := req.QueryStringParameters["to"]
 	date := req.QueryStringParameters["date"]
