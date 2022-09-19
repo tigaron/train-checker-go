@@ -1,0 +1,18 @@
+org: tigaron
+service: train-checker-go
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: go1.x
+  stage: dev
+  region: ap-southeast-1
+
+functions:
+  TrainsChecker:
+    handler: main
+    events:
+      - httpApi:
+          path: /trains
+          method: get
