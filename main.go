@@ -72,6 +72,12 @@ func isDateValid(date string) bool {
 func transformDate(date string) string {
 	dateArray := strings.Split(date, "-")
 	dateArray[1] = MonthsData[dateArray[1]]
+
+	for i := len(dateArray)/2 - 1; i >= 0; i-- {
+		opp := len(dateArray) - 1 - i
+		dateArray[i], dateArray[opp] = dateArray[opp], dateArray[i]
+	}
+
 	newDate := strings.Join(dateArray, "-")
 
 	return newDate
